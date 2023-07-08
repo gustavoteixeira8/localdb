@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 )
 
 const _DB_PREFFIX = "db_go"
@@ -120,7 +121,9 @@ func (db *DBManager) Backup() error {
 		return err
 	}
 
-	err = os.MkdirAll(db.config.BackupPath, 0777)
+	backuppath := fmt.Sprintf("%s_%d", db.config.BackupPath, time.Now().UnixMilli())
+
+	err = os.MkdirAll(backuppath, 0777)
 
 	if err != nil {
 		return err
@@ -134,7 +137,7 @@ func (db *DBManager) Backup() error {
 			continue
 		}
 		backupName := fmt.Sprintf("%s_%s", _DB_BACKUP_PREFFIX, name)
-		backupName = filepath.Join(db.config.BackupPath, backupName)
+		backupName = filepath.Join(backuppath, backupName)
 		err = os.WriteFile(backupName, fileBytes, 0777)
 		if err != nil {
 			return err
