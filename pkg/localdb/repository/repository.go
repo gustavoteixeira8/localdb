@@ -48,6 +48,11 @@ func (r *Repository[T]) Find(cb RepositoryFindCallback[T]) ([]T, error) {
 	tvalFound := []T{}
 
 	for _, v := range tval {
+		if cb == nil {
+			tvalFound = tval
+			break
+		}
+
 		isToAppend := cb(v)
 		if isToAppend {
 			tvalFound = append(tvalFound, v)
