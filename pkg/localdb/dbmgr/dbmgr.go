@@ -1,4 +1,4 @@
-package dbmanager
+package dbmgr
 
 import (
 	"errors"
@@ -24,6 +24,10 @@ type DBManager struct {
 	config *DBManagerConfig
 }
 
+func (db *DBManager) GetConfig() *DBManagerConfig {
+	return db.config
+}
+
 func (db *DBManager) Start() error {
 	if db.config == nil {
 		return errors.New("db config cannot be nil")
@@ -37,7 +41,7 @@ func (db *DBManager) Start() error {
 		return err
 	}
 
-	db.config.Path, err = filepath.Abs(db.config.BackupPath)
+	db.config.BackupPath, err = filepath.Abs(db.config.BackupPath)
 
 	if err != nil {
 		return err
