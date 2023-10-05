@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const _DB_PREFFIX = "db_go"
+const _DB_PREFFIX = "localdb"
 const _DB_BACKUP_PREFFIX = "backup"
 const _BACKUP_DEFAULT_PATH = "./backup"
 
