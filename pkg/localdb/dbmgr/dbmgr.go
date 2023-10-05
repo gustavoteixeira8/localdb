@@ -93,6 +93,22 @@ func (db *DBManager) Migrate(v ...any) error {
 	return nil
 }
 
+func (db DBManager) GetTableName(v any) string {
+	typeofEntity := reflect.TypeOf(v)
+
+	if typeofEntity.Kind() == reflect.Ptr {
+		typeofEntity = typeofEntity.Elem()
+	}
+
+	if typeofEntity.Kind() != reflect.Struct && typeofEntity.Kind() != reflect.Map {
+		return ""
+	}
+
+	tablename := db.formatTableName(typeofEntity.Name())
+
+	return fmt.Sprintf("%s.json", tablename)
+}
+
 func (db *DBManager) GetTableNames() ([]string, error) {
 	tablenames := []string{}
 	dirFiles, err := os.ReadDir(db.config.Path)
