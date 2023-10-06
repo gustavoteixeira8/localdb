@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/google/uuid"
@@ -136,6 +137,10 @@ func (r *Repository[T]) Delete(cb RepositoryDeleteCallback[T]) error {
 		return err
 	}
 
+	sort.Slice(data, func(i, j int) bool {
+		return i > j
+	})
+
 	for i := len(data) - 1; i >= 0; i-- {
 		val := data[i]
 
@@ -147,6 +152,10 @@ func (r *Repository[T]) Delete(cb RepositoryDeleteCallback[T]) error {
 			}
 		}
 	}
+
+	sort.Slice(data, func(i, j int) bool {
+		return i > j
+	})
 
 	err = r.file.WriteFile(fullpath, data)
 

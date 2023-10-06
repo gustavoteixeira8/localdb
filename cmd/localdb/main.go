@@ -33,7 +33,7 @@ func main() {
 
 	err = r.Delete(func(model User) *repository.DeleteResponse[User] {
 		return &repository.DeleteResponse[User]{
-			Query:       model.Name == "GUSTAVO",
+			Query:       model.Name == "gustavo",
 			StopOnFirst: false,
 		}
 	})
