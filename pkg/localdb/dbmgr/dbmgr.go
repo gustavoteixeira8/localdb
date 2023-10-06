@@ -195,5 +195,7 @@ func New(config *DBManagerConfig) *DBManager {
 		config.FileType = "json"
 	}
 
-	return &DBManager{config}
+	mgr := &DBManager{config: config}
+
+	return mgr
 }
