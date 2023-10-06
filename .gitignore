@@ -45,5 +45,5 @@ go.work
 
 .env
 *.json
-
+*.yaml
 # End of https://www.toptal.com/developers/gitignore/api/go,visualstudiocode
