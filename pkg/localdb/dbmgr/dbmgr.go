@@ -92,7 +92,7 @@ func (db *DBManager) Migrate(v ...any) error {
 			continue
 		}
 
-		err = os.WriteFile(fullpath, []byte(""), 0777)
+		err = os.WriteFile(fullpath, []byte("[]"), 0777)
 		if err != nil {
 			return fmt.Errorf("error creating %s file to %s", db.config.FileType, tablename)
 		}
