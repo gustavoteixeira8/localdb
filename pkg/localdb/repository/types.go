@@ -7,6 +7,8 @@ type FindResponse[T Model] struct {
 	Query       bool
 }
 
+type DeleteResponse[T Model] FindResponse[T]
+
 type AddResponse[T Model] struct {
 	Query    bool
 	UseQuery bool
@@ -15,6 +17,7 @@ type AddResponse[T Model] struct {
 
 type RepositoryFindCallback[T Model] func(model T) *FindResponse[T]
 type RepositoryAddCallback[T Model] func(model T) *AddResponse[T]
+type RepositoryDeleteCallback[T Model] func(model T) *DeleteResponse[T]
 
 type Model interface {
 	GetID() string

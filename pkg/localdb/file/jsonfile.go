@@ -8,20 +8,20 @@ import (
 type JSONFile[T any] struct {
 }
 
-func (f JSONFile[T]) ReadFile(path string) (*T, error) {
+func (f JSONFile[T]) ReadFile(path string) (T, error) {
+	tval := new(T)
+
 	databs, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return *tval, err
 	}
-
-	tval := new(T)
 
 	err = json.Unmarshal(databs, &tval)
 	if err != nil {
-		return nil, err
+		return *tval, err
 	}
 
-	return tval, nil
+	return *tval, nil
 }
 
 func (f JSONFile[T]) WriteFile(path string, data T) error {

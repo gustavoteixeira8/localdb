@@ -9,20 +9,19 @@ import (
 type YAMLFile[T any] struct {
 }
 
-func (f *YAMLFile[T]) ReadFile(path string) (*T, error) {
+func (f *YAMLFile[T]) ReadFile(path string) (T, error) {
+	tval := new(T)
 	databs, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return *tval, err
 	}
-
-	tval := new(T)
 
 	err = yaml.Unmarshal(databs, &tval)
 	if err != nil {
-		return nil, err
+		return *tval, err
 	}
 
-	return tval, nil
+	return *tval, nil
 }
 
 func (f *YAMLFile[T]) WriteFile(path string, data T) error {

@@ -41,12 +41,10 @@ func (r *Repository[T]) Find(cb RepositoryFindCallback[T]) ([]T, error) {
 		return nil, err
 	}
 
-	val, err := r.file.ReadFile(fullpath)
+	tval, err := r.file.ReadFile(fullpath)
 	if err != nil {
 		return nil, err
 	}
-
-	tval := *val
 
 	tvalFound := []T{}
 
@@ -69,38 +67,42 @@ func (r *Repository[T]) Find(cb RepositoryFindCallback[T]) ([]T, error) {
 }
 
 func (r *Repository[T]) Add(cb RepositoryAddCallback[T]) (*T, error) {
+	if cb == nil {
+		return nil, errors.New("callback cannot be nil")
+	}
+
 	fullpath, err := r.getTablePath()
 	if err != nil {
 		return nil, err
 	}
 
-	val, err := r.file.ReadFile(fullpath)
+	tval, err := r.file.ReadFile(fullpath)
 	if err != nil {
 		return nil, err
 	}
 
-	tval := *val
+	var tvalAdded *T
 
 	if len(tval) == 0 {
 		resp := cb(*new(T))
 		if resp == nil {
-			return nil, errors.New("callback from Add cannot be nil")
+			return nil, errors.New("response cannot be nil")
 		}
+
 		resp.Value.SetID(uuid.NewString())
 		resp.Value.SetCreatedAt(time.Now())
 		resp.Value.SetUpdatedAt(time.Now())
 		tval = append(tval, resp.Value)
+		tvalAdded = &resp.Value
 	} else {
 		for _, v := range tval {
-			if cb == nil {
-				break
-			}
-
 			resp := cb(v)
 
 			resp.Value.SetID(uuid.NewString())
 			resp.Value.SetCreatedAt(time.Now())
 			resp.Value.SetUpdatedAt(time.Now())
+
+			tvalAdded = &resp.Value
 
 			if resp.Query && resp.UseQuery {
 				tval = append(tval, resp.Value)
@@ -116,7 +118,39 @@ func (r *Repository[T]) Add(cb RepositoryAddCallback[T]) (*T, error) {
 
 	err = r.file.WriteFile(fullpath, tval)
 
-	return nil, err
+	return tvalAdded, err
+}
+
+func (r *Repository[T]) Delete(cb RepositoryDeleteCallback[T]) error {
+	if cb == nil {
+		return errors.New("callback cannot be nil")
+	}
+
+	fullpath, err := r.getTablePath()
+	if err != nil {
+		return err
+	}
+
+	data, err := r.file.ReadFile(fullpath)
+	if err != nil {
+		return err
+	}
+
+	for i := len(data) - 1; i >= 0; i-- {
+		val := data[i]
+
+		resp := cb(val)
+		if resp.Query {
+			data = append(data[:i], data[i+1:]...)
+			if resp.StopOnFirst {
+				break
+			}
+		}
+	}
+
+	err = r.file.WriteFile(fullpath, data)
+
+	return err
 }
 
 func New[T Model](mgr *dbmgr.DBManager) *Repository[T] {
