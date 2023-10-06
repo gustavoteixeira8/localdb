@@ -11,13 +11,21 @@ import (
 	"time"
 )
 
+type FileType string
+
+const (
+	FileTypeJSON FileType = "json"
+	FileTypeYAML FileType = "yaml"
+)
+
 const _DB_PREFFIX = "localdb"
 const _DB_BACKUP_PREFFIX = "backup"
 const _BACKUP_DEFAULT_PATH = "./backup"
 
 type DBManagerConfig struct {
-	Path       string `json:"path"`
-	BackupPath string `json:"backupPath"`
+	Path       string   `json:"path"`
+	BackupPath string   `json:"backupPath"`
+	FileType   FileType `json:"fileType"`
 }
 
 type DBManager struct {
@@ -76,7 +84,7 @@ func (db *DBManager) Migrate(v ...any) error {
 			return errors.New("cannot use a struct/map without name")
 		}
 
-		fullpath := fmt.Sprintf("%s.json", tablename)
+		fullpath := fmt.Sprintf("%s.%s", tablename, db.config.FileType)
 		fullpath = filepath.Join(db.config.Path, fullpath)
 
 		_, err := os.Stat(fullpath)
@@ -84,9 +92,9 @@ func (db *DBManager) Migrate(v ...any) error {
 			continue
 		}
 
-		err = os.WriteFile(fullpath, []byte("[]"), 0777)
+		err = os.WriteFile(fullpath, []byte(""), 0777)
 		if err != nil {
-			return fmt.Errorf("error creating json file to %s", tablename)
+			return fmt.Errorf("error creating %s file to %s", db.config.FileType, tablename)
 		}
 	}
 
@@ -106,7 +114,7 @@ func (db DBManager) GetTableName(v any) string {
 
 	tablename := db.formatTableName(typeofEntity.Name())
 
-	return fmt.Sprintf("%s.json", tablename)
+	return fmt.Sprintf("%s.%s", tablename, db.config.FileType)
 }
 
 func (db *DBManager) GetTableNames() ([]string, error) {
@@ -119,7 +127,8 @@ func (db *DBManager) GetTableNames() ([]string, error) {
 
 	for _, file := range dirFiles {
 		name := file.Name()
-		if strings.HasPrefix(name, _DB_PREFFIX) && strings.HasSuffix(name, ".json") {
+		filetype := fmt.Sprintf(".%s", db.config.FileType)
+		if strings.HasPrefix(name, _DB_PREFFIX) && strings.HasSuffix(name, filetype) {
 			tablenames = append(tablenames, name)
 		}
 	}
@@ -175,5 +184,16 @@ func (db *DBManager) formatTableName(s string) string {
 }
 
 func New(config *DBManagerConfig) *DBManager {
+	if config == nil {
+		wd, _ := os.Getwd()
+		config = &DBManagerConfig{
+			Path:       wd,
+			BackupPath: wd,
+			FileType:   "json",
+		}
+	} else if config.FileType == "" {
+		config.FileType = "json"
+	}
+
 	return &DBManager{config}
 }
