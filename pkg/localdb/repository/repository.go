@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/gustavoteixeira8/db-go/pkg/localdb/dbmgr"
-	"github.com/gustavoteixeira8/db-go/pkg/localdb/file"
+	"github.com/gustavoteixeira8/localdb/pkg/localdb/dbmgr"
+	"github.com/gustavoteixeira8/localdb/pkg/localdb/file"
 )
 
 type Repository[T Model] struct {

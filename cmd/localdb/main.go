@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/gustavoteixeira8/db-go/pkg/localdb/dbmgr"
-	"github.com/gustavoteixeira8/db-go/pkg/localdb/repository"
+	"github.com/gustavoteixeira8/localdb/pkg/localdb/dbmgr"
+	"github.com/gustavoteixeira8/localdb/pkg/localdb/repository"
 )
 
 type User struct {

@@ -1,4 +1,4 @@
-module github.com/gustavoteixeira8/db-go
+module github.com/gustavoteixeira8/localdb
 
 go 1.20
 
