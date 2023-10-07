@@ -184,15 +184,23 @@ func (db *DBManager) formatTableName(s string) string {
 }
 
 func New(config *DBManagerConfig) *DBManager {
+	wd, _ := os.Getwd()
 	if config == nil {
-		wd, _ := os.Getwd()
+		fmt.Println(wd)
 		config = &DBManagerConfig{
 			Path:       wd,
 			BackupPath: wd,
 			FileType:   "json",
 		}
-	} else if config.FileType == "" {
+	}
+	if config.FileType == "" {
 		config.FileType = "json"
+	}
+	if config.Path == "" {
+		config.Path = wd
+	}
+	if config.BackupPath == "" {
+		config.BackupPath = config.Path
 	}
 
 	mgr := &DBManager{config: config}

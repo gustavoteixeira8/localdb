@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"sort"
 	"time"
 
@@ -67,7 +68,7 @@ func (r *Repository[T]) Find(cb RepositoryFindCallback[T]) ([]T, error) {
 	return tvalFound, nil
 }
 
-func (r *Repository[T]) Add(cb RepositoryAddCallback[T]) (*T, error) {
+func (r *Repository[T]) AddWithQuery(cb RepositoryAddCallback[T]) (*T, error) {
 	if cb == nil {
 		return nil, errors.New("callback cannot be nil")
 	}
@@ -105,12 +106,7 @@ func (r *Repository[T]) Add(cb RepositoryAddCallback[T]) (*T, error) {
 
 			tvalAdded = &resp.Value
 
-			if resp.Query && resp.UseQuery {
-				tval = append(tval, resp.Value)
-				break
-			}
-
-			if !resp.UseQuery {
+			if resp.Query {
 				tval = append(tval, resp.Value)
 				break
 			}
@@ -122,7 +118,37 @@ func (r *Repository[T]) Add(cb RepositoryAddCallback[T]) (*T, error) {
 	return tvalAdded, err
 }
 
-func (r *Repository[T]) Delete(cb RepositoryDeleteCallback[T]) error {
+func (r *Repository[T]) Add(data T) (*T, error) {
+	fullpath, err := r.getTablePath()
+	if err != nil {
+		return nil, err
+	}
+
+	tval, err := r.file.ReadFile(fullpath)
+	if err != nil {
+		return nil, err
+	}
+
+	iszero := reflect.ValueOf(data).FieldByName("Base").IsZero()
+
+	if iszero {
+		return nil, errors.New("data should have base model")
+	}
+
+	data.SetID(uuid.NewString())
+	data.SetCreatedAt(time.Now())
+	data.SetUpdatedAt(time.Now())
+	tval = append(tval, data)
+
+	err = r.file.WriteFile(fullpath, tval)
+	if err != nil {
+		return nil, err
+	}
+
+	return &data, nil
+}
+
+func (r *Repository[T]) DeleteWithQuery(cb RepositoryDeleteCallback[T]) error {
 	if cb == nil {
 		return errors.New("callback cannot be nil")
 	}
@@ -160,6 +186,44 @@ func (r *Repository[T]) Delete(cb RepositoryDeleteCallback[T]) error {
 	err = r.file.WriteFile(fullpath, data)
 
 	return err
+}
+
+func (r *Repository[T]) Delete(id string) error {
+	fullpath, err := r.getTablePath()
+	if err != nil {
+		return err
+	}
+
+	alldata, err := r.file.ReadFile(fullpath)
+	if err != nil {
+		return err
+	}
+
+	for i, data := range alldata {
+		if data.GetID() == id {
+			alldata = append(alldata[:i], alldata[i+1:]...)
+			break
+		}
+	}
+
+	err = r.file.WriteFile(fullpath, alldata)
+
+	return err
+}
+
+// implementar função de update
+func (r *Repository[T]) Update(id string, newdata T) error {
+	fullpath, err := r.getTablePath()
+	if err != nil {
+		return err
+	}
+
+	_, err = r.file.ReadFile(fullpath)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func New[T Model](mgr *dbmgr.DBManager) *Repository[T] {

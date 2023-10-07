@@ -10,9 +10,8 @@ type FindResponse[T Model] struct {
 type DeleteResponse[T Model] FindResponse[T]
 
 type AddResponse[T Model] struct {
-	Query    bool
-	UseQuery bool
-	Value    T
+	Query bool
+	Value T
 }
 
 type RepositoryFindCallback[T Model] func(model T) *FindResponse[T]

@@ -11,7 +11,7 @@ type User struct {
 }
 
 func main() {
-	db := dbmgr.New(&dbmgr.DBManagerConfig{Path: "."})
+	db := dbmgr.New(&dbmgr.DBManagerConfig{})
 
 	err := db.Migrate(&User{})
 	if err != nil {
@@ -20,23 +20,14 @@ func main() {
 
 	r := repository.New[User](db)
 
-	// model, err := r.Add(func(model User) *repository.AddResponse[User] {
-	// 	return &repository.AddResponse[User]{
-	// 		Value: User{Base: repository.NewBase(), Name: "GUSTAVO"},
-	// 	}
-	// })
+	// model, err := r.Add(User{Base: repository.NewBase(), Name: "Juliana"})
 	// if err != nil {
 	// 	panic(err)
 	// }
 
 	// fmt.Println(model)
 
-	err = r.Delete(func(model User) *repository.DeleteResponse[User] {
-		return &repository.DeleteResponse[User]{
-			Query:       model.Name == "gustavo",
-			StopOnFirst: false,
-		}
-	})
+	err = r.Update("287529c4-aeb6-4fcb-98fc-9648d1b87c0d", User{Name: "GUSTAVO"})
 	if err != nil {
 		panic(err)
 	}
