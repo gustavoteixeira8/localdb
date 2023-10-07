@@ -1,4 +1,4 @@
-package file
+package filemgr
 
 import (
 	"encoding/json"
@@ -38,6 +38,6 @@ func (f JSONFile[T]) WriteFile(path string, data T) error {
 	return nil
 }
 
-func NewJSONFile[T any]() *JSONFile[T] {
+func NewJSONFile[T any]() FileMgr[T] {
 	return &JSONFile[T]{}
 }

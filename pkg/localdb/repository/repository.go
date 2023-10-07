@@ -9,12 +9,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gustavoteixeira8/localdb/pkg/localdb/dbmgr"
-	"github.com/gustavoteixeira8/localdb/pkg/localdb/file"
+	"github.com/gustavoteixeira8/localdb/pkg/localdb/filemgr"
 )
 
 type Repository[T Model] struct {
 	DBManager *dbmgr.DBManager
-	file      file.File[[]T]
+	file      filemgr.FileMgr[[]T]
 }
 
 func (r *Repository[T]) getTablePath() (string, error) {
@@ -230,9 +230,9 @@ func New[T Model](mgr *dbmgr.DBManager) *Repository[T] {
 	r := &Repository[T]{DBManager: mgr}
 
 	if mgr.GetConfig().FileType == dbmgr.FileTypeJSON {
-		r.file = file.NewJSONFile[[]T]()
+		r.file = filemgr.NewJSONFile[[]T]()
 	} else if mgr.GetConfig().FileType == dbmgr.FileTypeYAML {
-		r.file = file.NewYAMLFile[[]T]()
+		r.file = filemgr.NewYAMLFile[[]T]()
 	}
 
 	return r

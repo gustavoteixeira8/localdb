@@ -1,4 +1,4 @@
-package file
+package filemgr
 
 import (
 	"os"
@@ -38,6 +38,6 @@ func (f *YAMLFile[T]) WriteFile(path string, data T) error {
 	return nil
 }
 
-func NewYAMLFile[T any]() *YAMLFile[T] {
+func NewYAMLFile[T any]() FileMgr[T] {
 	return &YAMLFile[T]{}
 }
