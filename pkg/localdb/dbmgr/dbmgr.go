@@ -23,9 +23,9 @@ const _DB_BACKUP_PREFFIX = "backup"
 const _BACKUP_DEFAULT_PATH = "./backup"
 
 type DBManagerConfig struct {
-	Path       string   `json:"path"`
-	BackupPath string   `json:"backupPath"`
-	FileType   FileType `json:"fileType"`
+	Path       string   `json:"path" yaml:"path"`
+	BackupPath string   `json:"backupPath" yaml:"backupPath"`
+	FileType   FileType `json:"fileType" yaml:"fileType"`
 }
 
 type DBManager struct {

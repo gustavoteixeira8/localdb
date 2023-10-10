@@ -37,9 +37,9 @@ type Model interface {
 }
 
 type Base struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID        string    `json:"id" yaml:"id"`
+	CreatedAt time.Time `json:"createdAt" yaml:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt" yaml:"updatedAt"`
 }
 
 func (b *Base) GetID() string {
