@@ -3,12 +3,17 @@ package filemgr
 import (
 	"encoding/json"
 	"os"
+	"sync"
 )
 
 type JSONFile[T any] struct {
+	mutex sync.Mutex
 }
 
 func (f JSONFile[T]) ReadFile(path string) (T, error) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
 	tval := new(T)
 
 	databs, err := os.ReadFile(path)
@@ -25,6 +30,9 @@ func (f JSONFile[T]) ReadFile(path string) (T, error) {
 }
 
 func (f JSONFile[T]) WriteFile(path string, data T) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
 	bs, err := json.Marshal(&data)
 	if err != nil {
 		return err
@@ -39,5 +47,5 @@ func (f JSONFile[T]) WriteFile(path string, data T) error {
 }
 
 func NewJSONFile[T any]() FileMgr[T] {
-	return &JSONFile[T]{}
+	return &JSONFile[T]{mutex: sync.Mutex{}}
 }

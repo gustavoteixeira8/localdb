@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/gustavoteixeira8/localdb/pkg/localdb/dbmgr"
 	"github.com/gustavoteixeira8/localdb/pkg/localdb/repository"
 )
@@ -28,9 +30,11 @@ func main() {
 
 	// fmt.Println(model)
 
-	err = r.Update("490e44eb-e9bb-46d5-ac25-3627bb1e451d", User{Name: "GUSTAVO"})
-	if err != nil {
-		panic(err)
+	go r.Update("490e44eb-e9bb-46d5-ac25-3627bb1e451d", User{Name: "GUSTAVO"})
+	go r.Update("490e44eb-e9bb-46d5-ac25-3627bb1e451d", User{Name: "JOAO"})
+
+	for {
+		time.Sleep(time.Second * 60)
 	}
 }
 
