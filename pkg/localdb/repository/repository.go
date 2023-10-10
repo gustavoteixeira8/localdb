@@ -211,7 +211,6 @@ func (r *Repository[T]) Delete(id string) error {
 	return err
 }
 
-// implementar função de update
 func (r *Repository[T]) Update(id string, newdata T) error {
 	fullpath, err := r.getTablePath()
 	if err != nil {
@@ -248,7 +247,11 @@ func (r *Repository[T]) Update(id string, newdata T) error {
 					}
 				}
 			}
-			alldata[i] = dataValue.Interface().(T)
+
+			finalnewdata := dataValue.Interface().(T)
+			finalnewdata.SetUpdatedAt(time.Now())
+			alldata[i] = finalnewdata
+
 			break
 		}
 	}
@@ -256,6 +259,31 @@ func (r *Repository[T]) Update(id string, newdata T) error {
 	err = r.file.WriteFile(fullpath, alldata)
 
 	return err
+}
+
+func (r *Repository[T]) UpdateWithQuery(cb RepositoryUpdateCallback[T]) error {
+	fullpath, err := r.getTablePath()
+	if err != nil {
+		return err
+	}
+
+	alldata, err := r.file.ReadFile(fullpath)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range alldata {
+		resp := cb(v)
+		if resp.Query {
+			err = r.Update(v.GetID(), resp.Value)
+			if err != nil {
+				return err
+			}
+			break
+		}
+	}
+
+	return nil
 }
 
 func New[T Model](mgr *dbmgr.DBManager) *Repository[T] {
