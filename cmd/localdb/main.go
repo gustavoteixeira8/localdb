@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gustavoteixeira8/localdb/pkg/localdb/dbmgr"
 	"github.com/gustavoteixeira8/localdb/pkg/localdb/repository"
 )
@@ -12,7 +14,7 @@ type User struct {
 }
 
 func main() {
-	db := dbmgr.New(&dbmgr.DBManagerConfig{})
+	db := dbmgr.New(&dbmgr.DBManagerConfig{FileType: dbmgr.FileTypeYAML})
 
 	err := db.Migrate(&User{})
 	if err != nil {
@@ -21,12 +23,12 @@ func main() {
 
 	r := repository.New[User](db)
 
-	// model, err := r.Add(User{Base: repository.NewBase(), Name: "Juliana", Username: "JUJU"})
-	// if err != nil {
-	// 	panic(err)
-	// }
+	model, err := r.Add(User{Base: repository.NewBase(), Name: "GUSTAVO", Username: ""})
+	if err != nil {
+		panic(err)
+	}
 
-	// fmt.Println(model)
+	fmt.Println(model)
 
 	err = r.UpdateWithQuery(func(model User) *repository.UpdateResponse[User] {
 		return &repository.UpdateResponse[User]{
