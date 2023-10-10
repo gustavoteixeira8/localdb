@@ -26,8 +26,10 @@ func (r *Repository[T]) getTablePath() (string, error) {
 
 	rightTablename := ""
 
+	tval := new(T)
+
 	for _, tablename := range tablenames {
-		n := r.DBManager.GetTableName(new(T))
+		n := r.DBManager.GetTableName(tval)
 		if tablename == n {
 			rightTablename = tablename
 			break
