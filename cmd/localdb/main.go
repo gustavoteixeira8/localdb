@@ -7,7 +7,8 @@ import (
 
 type User struct {
 	*repository.Base
-	Name string
+	Name     string
+	Username string
 }
 
 func main() {
@@ -20,14 +21,14 @@ func main() {
 
 	r := repository.New[User](db)
 
-	// model, err := r.Add(User{Base: repository.NewBase(), Name: "Juliana"})
+	// model, err := r.Add(User{Base: repository.NewBase(), Name: "Juliana", Username: "JUJU"})
 	// if err != nil {
 	// 	panic(err)
 	// }
 
 	// fmt.Println(model)
 
-	err = r.Update("287529c4-aeb6-4fcb-98fc-9648d1b87c0d", User{Name: "GUSTAVO"})
+	err = r.Update("490e44eb-e9bb-46d5-ac25-3627bb1e451d", User{Name: "GUSTAVO"})
 	if err != nil {
 		panic(err)
 	}

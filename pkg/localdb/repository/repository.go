@@ -218,12 +218,44 @@ func (r *Repository[T]) Update(id string, newdata T) error {
 		return err
 	}
 
-	_, err = r.file.ReadFile(fullpath)
+	alldata, err := r.file.ReadFile(fullpath)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	for i, data := range alldata {
+		dataValue := reflect.Indirect(reflect.ValueOf(&data))
+		if data.GetID() == id {
+			newdataType := reflect.TypeOf(newdata)
+			dataType := reflect.TypeOf(data)
+			newdataValue := reflect.Indirect(reflect.ValueOf(&newdata))
+
+			for _, newField := range reflect.VisibleFields(newdataType) {
+				if newField.Name == "Base" || newField.Name == "ID" || newField.Name == "CreatedAt" || newField.Name == "UpdatedAt" {
+					continue
+				}
+				for _, oldField := range reflect.VisibleFields(dataType) {
+					if oldField.Name == "Base" || oldField.Name == "ID" || oldField.Name == "CreatedAt" || oldField.Name == "UpdatedAt" {
+						continue
+					}
+					if newField.Name == oldField.Name {
+						newvalue := newdataValue.FieldByName(newField.Name)
+						oldvalue := dataValue.FieldByName(oldField.Name)
+						if newvalue.IsValid() && !newvalue.IsZero() {
+							oldvalue.Set(newvalue)
+						}
+						break
+					}
+				}
+			}
+			alldata[i] = dataValue.Interface().(T)
+			break
+		}
+	}
+
+	err = r.file.WriteFile(fullpath, alldata)
+
+	return err
 }
 
 func New[T Model](mgr *dbmgr.DBManager) *Repository[T] {
