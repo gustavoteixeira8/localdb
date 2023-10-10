@@ -274,6 +274,10 @@ func (r *Repository[T]) Update(id string, newdata T) error {
 }
 
 func (r *Repository[T]) UpdateWithQuery(cb RepositoryUpdateCallback[T]) error {
+	if cb == nil {
+		return errors.New("callback cannot be nil")
+	}
+
 	fullpath, err := r.getTablePath()
 	if err != nil {
 		return err
