@@ -223,26 +223,36 @@ func (r *Repository[T]) Update(id string, newdata T) error {
 	}
 
 	for i, data := range alldata {
-		dataValue := reflect.Indirect(reflect.ValueOf(&data))
 		if data.GetID() == id {
+			dataValue := reflect.Indirect(reflect.ValueOf(&data))
 			newdataType := reflect.TypeOf(newdata)
 			dataType := reflect.TypeOf(data)
 			newdataValue := reflect.Indirect(reflect.ValueOf(&newdata))
 
 			for _, newField := range reflect.VisibleFields(newdataType) {
-				if newField.Name == "Base" || newField.Name == "ID" || newField.Name == "CreatedAt" || newField.Name == "UpdatedAt" {
+				verifyBaseFields := newField.Name == "Base" || newField.Name == "ID"
+				verifyBaseFields = verifyBaseFields && newField.Name == "CreatedAt" || newField.Name == "UpdatedAt"
+
+				if verifyBaseFields {
 					continue
 				}
+
 				for _, oldField := range reflect.VisibleFields(dataType) {
-					if oldField.Name == "Base" || oldField.Name == "ID" || oldField.Name == "CreatedAt" || oldField.Name == "UpdatedAt" {
+					verifyBaseFields := oldField.Name == "Base" || oldField.Name == "ID"
+					verifyBaseFields = verifyBaseFields && oldField.Name == "CreatedAt" || oldField.Name == "UpdatedAt"
+
+					if verifyBaseFields {
 						continue
 					}
+
 					if newField.Name == oldField.Name {
 						newvalue := newdataValue.FieldByName(newField.Name)
 						oldvalue := dataValue.FieldByName(oldField.Name)
+
 						if newvalue.IsValid() && !newvalue.IsZero() {
 							oldvalue.Set(newvalue)
 						}
+
 						break
 					}
 				}
