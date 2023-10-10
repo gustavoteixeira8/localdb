@@ -30,10 +30,10 @@ func main() {
 
 	fmt.Println(model)
 
-	err = r.UpdateWithQuery(func(model User) *repository.UpdateResponse[User] {
-		return &repository.UpdateResponse[User]{
-			Query: model.Name == "GUSTAVO",
-			Value: User{Username: "GUGU"},
+	err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
+		return &repository.DeleteResponse[User]{
+			Query:       model.Name == "GUSTAVO",
+			StopOnFirst: false,
 		}
 	})
 	if err != nil {

@@ -12,8 +12,13 @@ type AddResponse[T Model] struct {
 	Value T
 }
 
+type UpdateResponse[T Model] struct {
+	StopOnFirst bool
+	Query       bool
+	Value       T
+}
+
 type DeleteResponse[T Model] FindResponse[T]
-type UpdateResponse[T Model] AddResponse[T]
 
 type RepositoryFindCallback[T Model] func(model T) *FindResponse[T]
 type RepositoryAddCallback[T Model] func(model T) *AddResponse[T]

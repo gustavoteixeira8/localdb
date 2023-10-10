@@ -233,7 +233,7 @@ func (r *Repository[T]) Update(id string, newdata T) error {
 
 			for _, newField := range reflect.VisibleFields(newdataType) {
 				verifyBaseFields := newField.Name == "Base" || newField.Name == "ID"
-				verifyBaseFields = verifyBaseFields && newField.Name == "CreatedAt" || newField.Name == "UpdatedAt"
+				verifyBaseFields = verifyBaseFields || newField.Name == "CreatedAt" || newField.Name == "UpdatedAt"
 
 				if verifyBaseFields {
 					continue
@@ -241,7 +241,7 @@ func (r *Repository[T]) Update(id string, newdata T) error {
 
 				for _, oldField := range reflect.VisibleFields(dataType) {
 					verifyBaseFields := oldField.Name == "Base" || oldField.Name == "ID"
-					verifyBaseFields = verifyBaseFields && oldField.Name == "CreatedAt" || oldField.Name == "UpdatedAt"
+					verifyBaseFields = verifyBaseFields || oldField.Name == "CreatedAt" || oldField.Name == "UpdatedAt"
 
 					if verifyBaseFields {
 						continue
@@ -295,7 +295,9 @@ func (r *Repository[T]) UpdateWithQuery(cb RepositoryUpdateCallback[T]) error {
 			if err != nil {
 				return err
 			}
-			break
+			if resp.StopOnFirst {
+				break
+			}
 		}
 	}
 
