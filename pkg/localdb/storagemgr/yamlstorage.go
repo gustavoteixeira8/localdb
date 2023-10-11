@@ -1,4 +1,4 @@
-package filemgr
+package storagemgr
 
 import (
 	"os"
@@ -7,11 +7,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type YAMLFile[T any] struct {
+type YAMLStorage[T any] struct {
 	mutex sync.Mutex
 }
 
-func (f *YAMLFile[T]) ReadFile(path string) (T, error) {
+func (f *YAMLStorage[T]) ReadFile(path string) (T, error) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -29,7 +29,7 @@ func (f *YAMLFile[T]) ReadFile(path string) (T, error) {
 	return *tval, nil
 }
 
-func (f *YAMLFile[T]) WriteFile(path string, data T) error {
+func (f *YAMLStorage[T]) WriteFile(path string, data T) error {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -46,6 +46,6 @@ func (f *YAMLFile[T]) WriteFile(path string, data T) error {
 	return nil
 }
 
-func NewYAMLFile[T any]() FileMgr[T] {
-	return &YAMLFile[T]{mutex: sync.Mutex{}}
+func NewYAMLStorage[T any]() StorageMgr[T] {
+	return &YAMLStorage[T]{mutex: sync.Mutex{}}
 }

@@ -1,4 +1,4 @@
-package filemgr
+package storagemgr
 
 import (
 	"encoding/json"
@@ -6,11 +6,11 @@ import (
 	"sync"
 )
 
-type JSONFile[T any] struct {
+type JSONStorage[T any] struct {
 	mutex sync.Mutex
 }
 
-func (f JSONFile[T]) ReadFile(path string) (T, error) {
+func (f JSONStorage[T]) ReadFile(path string) (T, error) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -29,7 +29,7 @@ func (f JSONFile[T]) ReadFile(path string) (T, error) {
 	return *tval, nil
 }
 
-func (f JSONFile[T]) WriteFile(path string, data T) error {
+func (f JSONStorage[T]) WriteFile(path string, data T) error {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -46,6 +46,6 @@ func (f JSONFile[T]) WriteFile(path string, data T) error {
 	return nil
 }
 
-func NewJSONFile[T any]() FileMgr[T] {
-	return &JSONFile[T]{mutex: sync.Mutex{}}
+func NewJSONStorage[T any]() StorageMgr[T] {
+	return &JSONStorage[T]{mutex: sync.Mutex{}}
 }
