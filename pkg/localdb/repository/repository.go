@@ -13,8 +13,8 @@ import (
 )
 
 type Repository[T Model] struct {
-	DBManager *dbmgr.DBManager
-	file      storagemgr.StorageMgr[[]T]
+	DBManager *dbmgr.DBManager[T]
+	storage   storagemgr.StorageMgr[[]T]
 }
 
 func (r *Repository[T]) getTablePath() (string, error) {
@@ -45,7 +45,7 @@ func (r *Repository[T]) Find(cb RepositoryFindCallback[T]) ([]T, error) {
 		return nil, err
 	}
 
-	tval, err := r.file.ReadFile(fullpath)
+	tval, err := r.storage.ReadFile(fullpath)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (r *Repository[T]) AddWithQuery(cb RepositoryAddCallback[T]) (*T, error) {
 		return nil, err
 	}
 
-	tval, err := r.file.ReadFile(fullpath)
+	tval, err := r.storage.ReadFile(fullpath)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func (r *Repository[T]) AddWithQuery(cb RepositoryAddCallback[T]) (*T, error) {
 		}
 	}
 
-	err = r.file.WriteFile(fullpath, tval)
+	err = r.storage.WriteFile(fullpath, tval)
 
 	return tvalAdded, err
 }
@@ -126,7 +126,7 @@ func (r *Repository[T]) Add(data T) (*T, error) {
 		return nil, err
 	}
 
-	tval, err := r.file.ReadFile(fullpath)
+	tval, err := r.storage.ReadFile(fullpath)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func (r *Repository[T]) Add(data T) (*T, error) {
 	data.SetUpdatedAt(time.Now())
 	tval = append(tval, data)
 
-	err = r.file.WriteFile(fullpath, tval)
+	err = r.storage.WriteFile(fullpath, tval)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func (r *Repository[T]) DeleteWithQuery(cb RepositoryDeleteCallback[T]) error {
 		return err
 	}
 
-	data, err := r.file.ReadFile(fullpath)
+	data, err := r.storage.ReadFile(fullpath)
 	if err != nil {
 		return err
 	}
@@ -185,7 +185,7 @@ func (r *Repository[T]) DeleteWithQuery(cb RepositoryDeleteCallback[T]) error {
 		return i > j
 	})
 
-	err = r.file.WriteFile(fullpath, data)
+	err = r.storage.WriteFile(fullpath, data)
 
 	return err
 }
@@ -196,7 +196,7 @@ func (r *Repository[T]) Delete(id string) error {
 		return err
 	}
 
-	alldata, err := r.file.ReadFile(fullpath)
+	alldata, err := r.storage.ReadFile(fullpath)
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func (r *Repository[T]) Delete(id string) error {
 		}
 	}
 
-	err = r.file.WriteFile(fullpath, alldata)
+	err = r.storage.WriteFile(fullpath, alldata)
 
 	return err
 }
@@ -219,7 +219,7 @@ func (r *Repository[T]) Update(id string, newdata T) error {
 		return err
 	}
 
-	alldata, err := r.file.ReadFile(fullpath)
+	alldata, err := r.storage.ReadFile(fullpath)
 	if err != nil {
 		return err
 	}
@@ -268,7 +268,7 @@ func (r *Repository[T]) Update(id string, newdata T) error {
 		}
 	}
 
-	err = r.file.WriteFile(fullpath, alldata)
+	err = r.storage.WriteFile(fullpath, alldata)
 
 	return err
 }
@@ -283,7 +283,7 @@ func (r *Repository[T]) UpdateWithQuery(cb RepositoryUpdateCallback[T]) error {
 		return err
 	}
 
-	alldata, err := r.file.ReadFile(fullpath)
+	alldata, err := r.storage.ReadFile(fullpath)
 	if err != nil {
 		return err
 	}
@@ -304,14 +304,17 @@ func (r *Repository[T]) UpdateWithQuery(cb RepositoryUpdateCallback[T]) error {
 	return nil
 }
 
-func New[T Model](mgr *dbmgr.DBManager) *Repository[T] {
-	r := &Repository[T]{DBManager: mgr}
+func (r *Repository[T]) Migrate(v T) error {
+	return r.DBManager.Migrate(v)
+}
 
-	if mgr.GetConfig().FileType == dbmgr.FileTypeJSON {
-		r.file = storagemgr.NewJSONStorage[[]T]()
-	} else if mgr.GetConfig().FileType == dbmgr.FileTypeYAML {
-		r.file = storagemgr.NewYAMLStorage[[]T]()
-	}
+func (r *Repository[T]) Start() error {
+	return r.DBManager.Start()
+}
 
+func New[T Model](config *dbmgr.DBManagerConfig) *Repository[T] {
+	db := dbmgr.New[T](config)
+	r := &Repository[T]{DBManager: db}
+	r.storage = db.GetStorage()
 	return r
 }

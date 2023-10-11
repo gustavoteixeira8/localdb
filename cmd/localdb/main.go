@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gustavoteixeira8/localdb/pkg/localdb/dbmgr"
 	"github.com/gustavoteixeira8/localdb/pkg/localdb/repository"
 )
@@ -18,39 +20,39 @@ type User struct {
 }
 
 func main() {
-	db := dbmgr.New(&dbmgr.DBManagerConfig{FileType: dbmgr.FileTypeJSON})
+	dbconfig := &dbmgr.DBManagerConfig{StorageType: dbmgr.StorageTypeJSON}
 
-	err := db.Migrate(&User{})
+	r := repository.New[User](dbconfig)
+
+	err := r.Migrate(User{})
 	if err != nil {
 		panic(err)
 	}
 
-	r := repository.New[User](db)
+	model, err := r.Add(
+		User{
+			Base:     repository.NewBase(),
+			Name:     "GUSTAVO",
+			Username: "",
+			Admin: Admin{
+				Name: "abc",
+			},
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
 
-	// model, err := r.Add(
-	// 	User{
-	// 		Base:     repository.NewBase(),
-	// 		Name:     "GUSTAVO",
-	// 		Username: "",
-	// 		Admin: struct{ Name string }{
-	// 			Name: "abc",
-	// 		},
-	// 	},
-	// )
+	fmt.Println(model)
+
+	// err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
+	// 	return &repository.DeleteResponse[User]{
+	// 		Query: model.Admin.Name == "ADMIN",
+	// 	}
+	// })
 	// if err != nil {
 	// 	panic(err)
 	// }
-
-	// fmt.Println(model)
-
-	err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
-		return &repository.DeleteResponse[User]{
-			Query: model.Admin.Name == "ADMIN",
-		}
-	})
-	if err != nil {
-		panic(err)
-	}
 	// fmt.Println(m)
 }
 
