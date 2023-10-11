@@ -20,7 +20,7 @@ type User struct {
 }
 
 func main() {
-	dbconfig := &dbmgr.DBManagerConfig{StorageType: dbmgr.StorageTypeJSON}
+	dbconfig := &dbmgr.DBManagerConfig{StorageType: dbmgr.StorageTypeMemory}
 
 	r := repository.New[User](dbconfig)
 
@@ -44,6 +44,26 @@ func main() {
 	}
 
 	fmt.Println(model)
+
+	err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
+		return &repository.DeleteResponse[User]{
+			Query: model.Name == "GUSTAVO1",
+		}
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	model1, err := r.Find(func(model User) *repository.FindResponse[User] {
+		return &repository.FindResponse[User]{
+			Query: model.Name == "GUSTAVO",
+		}
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(model1)
 
 	// err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
 	// 	return &repository.DeleteResponse[User]{

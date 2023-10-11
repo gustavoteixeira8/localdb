@@ -96,6 +96,11 @@ func (db *DBManager[T]) Migrate(v ...any) error {
 			return errors.New("cannot use a struct/map without name")
 		}
 
+		if db.config.StorageType == StorageTypeMemory {
+			// do something
+			continue
+		}
+
 		fullpath := fmt.Sprintf("%s.%s", tablename, db.config.StorageType)
 		fullpath = filepath.Join(db.config.Path, fullpath)
 
@@ -221,6 +226,8 @@ func New[T any](config *DBManagerConfig) *DBManager[T] {
 		mgr.storage = storagemgr.NewJSONStorage[[]T]()
 	} else if config.StorageType == StorageTypeYAML {
 		mgr.storage = storagemgr.NewYAMLStorage[[]T]()
+	} else if config.StorageType == StorageTypeMemory {
+		mgr.storage = storagemgr.NewMemoryStorage[[]T]()
 	}
 
 	return mgr
