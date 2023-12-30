@@ -20,7 +20,7 @@ type User struct {
 }
 
 func main() {
-	dbconfig := &dbmgr.DBManagerConfig{StorageType: dbmgr.StorageTypeMemory}
+	dbconfig := &dbmgr.DBManagerConfig{StorageType: dbmgr.StorageTypeJSON}
 
 	r := repository.New[User](dbconfig)
 
@@ -65,20 +65,30 @@ func main() {
 
 	fmt.Println(model1)
 
-	// err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
-	// 	return &repository.DeleteResponse[User]{
-	// 		Query: model.Admin.Name == "ADMIN",
-	// 	}
-	// })
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Println(m)
-}
+	model1, err = r.Find(func(model User) *repository.FindResponse[User] {
+		return &repository.FindResponse[User]{StopOnFirst: true, Query: model.Name == "GUSTAVOa"}
+	})
+	if err != nil {
+		panic(err)
+	}
 
-// model, err := r.Find(func(model User) *repository.FindResponse[User] {
-// 	return &repository.FindResponse[User]{StopOnFirst: true, Query: model.Name == "GUSTAVOa"}
-// })
-// if err != nil {
-// 	panic(err)
-// }
+	fmt.Println(model1)
+
+	err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
+		return &repository.DeleteResponse[User]{
+			Query: model.Admin.Name == "ADMIN",
+		}
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
+		return &repository.DeleteResponse[User]{
+			Query: true,
+		}
+	})
+	if err != nil {
+		panic(err)
+	}
+}
