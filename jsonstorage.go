@@ -10,7 +10,7 @@ type JSONStorage[T any] struct {
 	mutex sync.Mutex
 }
 
-func (f JSONStorage[T]) ReadFile(path string) (T, error) {
+func (f *JSONStorage[T]) ReadFile(path string) (T, error) {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
@@ -29,7 +29,7 @@ func (f JSONStorage[T]) ReadFile(path string) (T, error) {
 	return *tval, nil
 }
 
-func (f JSONStorage[T]) WriteFile(path string, data T) error {
+func (f *JSONStorage[T]) WriteFile(path string, data T) error {
 	f.mutex.Lock()
 	defer f.mutex.Unlock()
 
