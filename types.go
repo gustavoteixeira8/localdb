@@ -1,4 +1,4 @@
-package repository
+package localdb
 
 import "time"
 

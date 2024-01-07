@@ -1,4 +1,4 @@
-package repository
+package localdb
 
 import (
 	"errors"
@@ -8,13 +8,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/gustavoteixeira8/localdb/pkg/localdb/dbmgr"
-	"github.com/gustavoteixeira8/localdb/pkg/localdb/storagemgr"
 )
 
 type Repository[T Model] struct {
-	DBManager *dbmgr.DBManager[T]
-	storage   storagemgr.StorageMgr[[]T]
+	DBManager *DBManager[T]
+	storage   StorageMgr[[]T]
 }
 
 func (r *Repository[T]) getTablePath() (string, error) {
@@ -312,8 +310,8 @@ func (r *Repository[T]) Start() error {
 	return r.DBManager.Start()
 }
 
-func New[T Model](config *dbmgr.DBManagerConfig) *Repository[T] {
-	db := dbmgr.New[T](config)
+func New[T Model](config *DBManagerConfig) *Repository[T] {
+	db := newDBMgr[T](config)
 	r := &Repository[T]{DBManager: db}
 	r.storage = db.GetStorage()
 	return r

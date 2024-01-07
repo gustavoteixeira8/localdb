@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gustavoteixeira8/localdb/pkg/localdb/dbmgr"
-	"github.com/gustavoteixeira8/localdb/pkg/localdb/repository"
+	"github.com/gustavoteixeira8/localdb"
 )
 
 type Admin struct {
@@ -13,16 +12,16 @@ type Admin struct {
 }
 
 type User struct {
-	*repository.Base
+	*localdb.Base
 	Name     string `json:"name"`
 	Username string `json:"username"`
 	Admin    Admin  `json:"admin"`
 }
 
 func main() {
-	dbconfig := &dbmgr.DBManagerConfig{StorageType: dbmgr.StorageTypeJSON}
+	dbconfig := &localdb.DBManagerConfig{StorageType: localdb.StorageTypeJSON}
 
-	r := repository.New[User](dbconfig)
+	r := localdb.New[User](dbconfig)
 
 	err := r.Migrate(User{})
 	if err != nil {
@@ -31,7 +30,7 @@ func main() {
 
 	model, err := r.Add(
 		User{
-			Base:     repository.NewBase(),
+			Base:     localdb.NewBase(),
 			Name:     "GUSTAVO",
 			Username: "",
 			Admin: Admin{
@@ -45,8 +44,8 @@ func main() {
 
 	fmt.Println(model)
 
-	err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
-		return &repository.DeleteResponse[User]{
+	err = r.DeleteWithQuery(func(model User) *localdb.DeleteResponse[User] {
+		return &localdb.DeleteResponse[User]{
 			Query: model.Name == "GUSTAVO1",
 		}
 	})
@@ -54,8 +53,8 @@ func main() {
 		panic(err)
 	}
 
-	model1, err := r.Find(func(model User) *repository.FindResponse[User] {
-		return &repository.FindResponse[User]{
+	model1, err := r.Find(func(model User) *localdb.FindResponse[User] {
+		return &localdb.FindResponse[User]{
 			Query: model.Name == "GUSTAVO",
 		}
 	})
@@ -65,8 +64,8 @@ func main() {
 
 	fmt.Println(model1)
 
-	model1, err = r.Find(func(model User) *repository.FindResponse[User] {
-		return &repository.FindResponse[User]{StopOnFirst: true, Query: model.Name == "GUSTAVOa"}
+	model1, err = r.Find(func(model User) *localdb.FindResponse[User] {
+		return &localdb.FindResponse[User]{StopOnFirst: true, Query: model.Name == "GUSTAVOa"}
 	})
 	if err != nil {
 		panic(err)
@@ -74,8 +73,8 @@ func main() {
 
 	fmt.Println(model1)
 
-	err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
-		return &repository.DeleteResponse[User]{
+	err = r.DeleteWithQuery(func(model User) *localdb.DeleteResponse[User] {
+		return &localdb.DeleteResponse[User]{
 			Query: model.Admin.Name == "ADMIN",
 		}
 	})
@@ -83,8 +82,8 @@ func main() {
 		panic(err)
 	}
 
-	err = r.DeleteWithQuery(func(model User) *repository.DeleteResponse[User] {
-		return &repository.DeleteResponse[User]{
+	err = r.DeleteWithQuery(func(model User) *localdb.DeleteResponse[User] {
+		return &localdb.DeleteResponse[User]{
 			Query: true,
 		}
 	})

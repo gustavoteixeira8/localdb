@@ -1,4 +1,4 @@
-package storagemgr
+package localdb
 
 type StorageMgr[T any] interface {
 	ReadFile(path string) (T, error)

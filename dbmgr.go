@@ -1,4 +1,4 @@
-package dbmgr
+package localdb
 
 import (
 	"errors"
@@ -9,8 +9,6 @@ import (
 	"reflect"
 	"strings"
 	"time"
-
-	"github.com/gustavoteixeira8/localdb/pkg/localdb/storagemgr"
 )
 
 type StorageType string
@@ -33,14 +31,14 @@ type DBManagerConfig struct {
 
 type DBManager[T any] struct {
 	config  *DBManagerConfig
-	storage storagemgr.StorageMgr[[]T]
+	storage StorageMgr[[]T]
 }
 
 func (db *DBManager[T]) GetConfig() *DBManagerConfig {
 	return db.config
 }
 
-func (db *DBManager[T]) GetStorage() storagemgr.StorageMgr[[]T] {
+func (db *DBManager[T]) GetStorage() StorageMgr[[]T] {
 	return db.storage
 }
 
@@ -200,7 +198,7 @@ func (db *DBManager[T]) formatTableName(s string) string {
 	return fmt.Sprintf("%s_%s", _DB_PREFFIX, sf)
 }
 
-func New[T any](config *DBManagerConfig) *DBManager[T] {
+func newDBMgr[T any](config *DBManagerConfig) *DBManager[T] {
 	wd, _ := os.Getwd()
 	if config == nil {
 		fmt.Println(wd)
@@ -223,11 +221,11 @@ func New[T any](config *DBManagerConfig) *DBManager[T] {
 	mgr := &DBManager[T]{config: config}
 
 	if config.StorageType == StorageTypeJSON {
-		mgr.storage = storagemgr.NewJSONStorage[[]T]()
+		mgr.storage = NewJSONStorage[[]T]()
 	} else if config.StorageType == StorageTypeYAML {
-		mgr.storage = storagemgr.NewYAMLStorage[[]T]()
+		mgr.storage = NewYAMLStorage[[]T]()
 	} else if config.StorageType == StorageTypeMemory {
-		mgr.storage = storagemgr.NewMemoryStorage[[]T]()
+		mgr.storage = NewMemoryStorage[[]T]()
 	}
 
 	return mgr
