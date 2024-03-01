@@ -20,10 +20,10 @@ type UpdateResponse[T Model] struct {
 
 type DeleteResponse[T Model] FindResponse[T]
 
-type RepositoryFindCallback[T Model] func(model T) *FindResponse[T]
-type RepositoryAddCallback[T Model] func(model T) *AddResponse[T]
-type RepositoryDeleteCallback[T Model] func(model T) *DeleteResponse[T]
-type RepositoryUpdateCallback[T Model] func(model T) *UpdateResponse[T]
+type DBFindCallback[T Model] func(model T) *FindResponse[T]
+type DBAddCallback[T Model] func(model T) *AddResponse[T]
+type DBDeleteCallback[T Model] func(model T) *DeleteResponse[T]
+type DBUpdateCallback[T Model] func(model T) *UpdateResponse[T]
 
 type Model interface {
 	GetID() string

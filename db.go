@@ -10,12 +10,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type Repository[T Model] struct {
+type DB[T Model] struct {
 	DBManager *DBManager[T]
 	storage   StorageMgr[[]T]
 }
 
-func (r *Repository[T]) getTablePath() (string, error) {
+func (r *DB[T]) getTablePath() (string, error) {
 	dataPath := r.DBManager.GetConfig().Path
 	tablenames, err := r.DBManager.GetTableNames()
 	if err != nil {
@@ -37,7 +37,7 @@ func (r *Repository[T]) getTablePath() (string, error) {
 	return fmt.Sprintf("%s/%s", dataPath, rightTablename), nil
 }
 
-func (r *Repository[T]) Find(cb RepositoryFindCallback[T]) ([]T, error) {
+func (r *DB[T]) Find(cb DBFindCallback[T]) ([]T, error) {
 	fullpath, err := r.getTablePath()
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (r *Repository[T]) Find(cb RepositoryFindCallback[T]) ([]T, error) {
 	return tvalFound, nil
 }
 
-func (r *Repository[T]) AddWithQuery(cb RepositoryAddCallback[T]) (*T, error) {
+func (r *DB[T]) AddWithQuery(cb DBAddCallback[T]) (*T, error) {
 	if cb == nil {
 		return nil, errors.New("callback cannot be nil")
 	}
@@ -118,7 +118,7 @@ func (r *Repository[T]) AddWithQuery(cb RepositoryAddCallback[T]) (*T, error) {
 	return tvalAdded, err
 }
 
-func (r *Repository[T]) Add(data T) (*T, error) {
+func (r *DB[T]) Add(data T) (*T, error) {
 	fullpath, err := r.getTablePath()
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (r *Repository[T]) Add(data T) (*T, error) {
 		return nil, err
 	}
 
-	iszero := reflect.ValueOf(data).FieldByName("Base").IsZero()
+	iszero := reflect.ValueOf(data).Elem().FieldByName("Base").IsZero()
 
 	if iszero {
 		return nil, errors.New("data should have base model")
@@ -148,7 +148,7 @@ func (r *Repository[T]) Add(data T) (*T, error) {
 	return &data, nil
 }
 
-func (r *Repository[T]) DeleteWithQuery(cb RepositoryDeleteCallback[T]) error {
+func (r *DB[T]) DeleteWithQuery(cb DBDeleteCallback[T]) error {
 	if cb == nil {
 		return errors.New("callback cannot be nil")
 	}
@@ -188,7 +188,7 @@ func (r *Repository[T]) DeleteWithQuery(cb RepositoryDeleteCallback[T]) error {
 	return err
 }
 
-func (r *Repository[T]) Delete(id string) error {
+func (r *DB[T]) Delete(id string) error {
 	fullpath, err := r.getTablePath()
 	if err != nil {
 		return err
@@ -211,7 +211,7 @@ func (r *Repository[T]) Delete(id string) error {
 	return err
 }
 
-func (r *Repository[T]) Update(id string, newdata T) error {
+func (r *DB[T]) Update(id string, newdata T) error {
 	fullpath, err := r.getTablePath()
 	if err != nil {
 		return err
@@ -271,7 +271,7 @@ func (r *Repository[T]) Update(id string, newdata T) error {
 	return err
 }
 
-func (r *Repository[T]) UpdateWithQuery(cb RepositoryUpdateCallback[T]) error {
+func (r *DB[T]) UpdateWithQuery(cb DBUpdateCallback[T]) error {
 	if cb == nil {
 		return errors.New("callback cannot be nil")
 	}
@@ -302,17 +302,17 @@ func (r *Repository[T]) UpdateWithQuery(cb RepositoryUpdateCallback[T]) error {
 	return nil
 }
 
-func (r *Repository[T]) Migrate(v T) error {
+func (r *DB[T]) Migrate(v T) error {
 	return r.DBManager.Migrate(v)
 }
 
-func (r *Repository[T]) Start() error {
+func (r *DB[T]) Start() error {
 	return r.DBManager.Start()
 }
 
-func New[T Model](config *DBManagerConfig) *Repository[T] {
+func New[T Model](config *DBManagerConfig) *DB[T] {
 	db := newDBMgr[T](config)
-	r := &Repository[T]{DBManager: db}
+	r := &DB[T]{DBManager: db}
 	r.storage = db.GetStorage()
 	return r
 }
